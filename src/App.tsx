@@ -13,7 +13,7 @@ const supabase: SupabaseClient = createClient(
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route
           index
@@ -35,7 +35,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     supabase.auth
       .getUser()
       .then(({ data: { user } }) => setState(user?.id ?? null));
-  });
+  }, []);
   return <>{state ? children : <h1>Wins and Loses</h1>}</>;
 }
 
