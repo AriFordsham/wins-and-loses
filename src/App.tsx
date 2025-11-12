@@ -1,18 +1,42 @@
-// import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-import './App.css'
-import { BrowserRouter } from 'react-router-dom'
-import Signup from './Signup'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import "./App.css";
+import Signup from "./Signup";
+import React from "react";
+
+const supabase: SupabaseClient = createClient(
+  "https://rfgnubwzhqzpkttafojn.supabase.co",
+  "sb_publishable_gLq9mShgW_mQu6NDFGdN1g_K_i8sBxt"
+);
 
 function App() {
-  // const supabase = createClient('https://rfgnubwzhqzpkttafojn.supabase.co','sb_publishable_gLq9mShgW_mQu6NDFGdN1g_K_i8sBxt')
-  // const [count, setCount] = useState(0)
-
   return (
     <BrowserRouter>
-      <Signup />
+      <Routes>
+        <Route
+          index
+          element={
+            <ProtectedRoute>
+              <Signup supabase={supabase} />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const [state, setState] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    supabase.auth
+      .getUser()
+      .then(({ data: { user } }) => setState(user?.id ?? null));
+  });
+  return <>{state ? children : <h1>Wins and Loses</h1>}</>;
+}
+
+export default App;
