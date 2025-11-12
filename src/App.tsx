@@ -32,21 +32,16 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [state, setState] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    supabase.auth
-      .getUser()
-      .then(({ data: { user } }) => setState(user?.id ?? null));
-  }, []);
-  return <>{state ? children : <Signin />}</>;
-}
-
-function Signin() {
-  React.useEffect(() => {
-    supabase.auth.signInWithOAuth({
-      provider: "google"
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setState(user?.id ?? null);
+      if (!user) {
+        supabase.auth.signInWithOAuth({
+          provider: "google",
+        });
+      }
     });
   }, []);
-
-  return <></>;
+  return <>{state ? children : <h1>Wins and Loses</h1>}</>;
 }
 
 export default App;
