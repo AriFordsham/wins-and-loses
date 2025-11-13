@@ -40,7 +40,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     <>
       User is {state}
       <button
-        onClick={() => supabase.auth.signInWithOAuth({ provider: "google" })}
+        onClick={() => supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: "https://arifordsham.com/wins-and-loses" } })}
       >
         Sign in
       </button>
