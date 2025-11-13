@@ -34,15 +34,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setState(user?.id ?? null);
-      if (!user) {
-        supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {redirectTo: window.location.origin}
-        });
-      }
     });
   }, []);
-  return <>{state ? children : <h1>Wins and Loses</h1>}</>;
+  return (
+    <>
+      User is {state}
+      <button
+        onClick={() => supabase.auth.signInWithOAuth({ provider: "google" })}
+      >
+        Sign in
+      </button>
+    </>
+  );
 }
 
 export default App;
