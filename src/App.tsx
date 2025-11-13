@@ -1,4 +1,4 @@
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient, type User } from "@supabase/supabase-js";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -28,24 +28,44 @@ function App() {
   );
 }
 
+type AuthState = "uninitialized" | "signed_out" | User;
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const [state, setState] = React.useState<string | null>(null);
+  const [state, setState] = React.useState<AuthState>("uninitialized");
 
   React.useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
-      setState(user?.id ?? null);
+      setState(user ?? "signed_out");
+      if (!user) {
+        supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo: import.meta.env.BASE_URL },
+        });
+      }
     });
   }, []);
-  return (
-    <>
-      User is {state}
-      <button
-        onClick={() => supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: "https://arifordsham.com/wins-and-loses" } })}
-      >
-        Sign in
-      </button>
-    </>
-  );
+
+  switch (state) {
+    case "uninitialized":
+      return <h1>Wins and Loses</h1>;
+    case "signed_out":
+      return (
+        <button
+          onClick={() =>
+            supabase.auth.signInWithOAuth({
+              provider: "google",
+              options: {
+                redirectTo: import.meta.env.BASE_URL,
+              },
+            })
+          }
+        >
+          Sign in
+        </button>
+      );
+    default:
+      return <>{children}</>;
+  }
 }
 
 export default App;
